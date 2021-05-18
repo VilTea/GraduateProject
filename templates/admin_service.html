@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+ 
+<html>
+<title>后台日志管理模块 - MyChan匿名板</title>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" />
+<link rel="shortcut icon" href="{{url_for('static',filename='icon/icon.jpg')}}">
+<script type="text/javascript" src="{{url_for('static',filename='js/jquery.min-3.3.1.js')}}"></script>
+<script type="text/javascript" src="{{url_for('static',filename='js/jquery-3.6.0.js')}}"></script>
+</head>
+<script type="text/javascript">
+    $(document).ready(function () {
+    var page_size = 15
+    var page_report = {{report.page}}
+    var page_logger = {{logger.page}}
+	function get_report_page_html(page, page_prev, page_last, has_next){
+		var str = "";
+		if(page > 1){
+			str += "<li class='uk-active'><a id='report_prev'>上一页</a></li>";
+		} else {
+			str += "<li class='uk-disabled'><span>上一页</span></li>";
+		}
+		for(i = page_prev; i < page_last; i++){
+			if(i == page){ 
+				str += "<li class='uk-disabled'><span>" + i + " </span></li>";
+			}else{
+				str += "<li class='uk-active'><span class='page_report' page=" + i +">" + i + " </span></li>";
+			}
+		}
+		if(has_next){
+			str += "<li class='uk-active'><a id='report_next'>下一页</a></li>";
+		} else {
+			str += "<li class='uk-disabled'><span>下一页</span></li>";
+		}
+		return str;
+	}
+	bindPageReport();
+	function bindPageReport(){
+		$('.page_report').click(function (){
+			var page_report_copy = page_report
+			page_report = parseInt($(this).attr("page"));
+					$.ajax({
+						type: 'POST',
+						data: {
+							'page': page_report,
+							'page_size': page_size,
+							'type': 'report'
+						},
+						url: "{{url_for('admin_service')}}",
+						success: function (data) {
+							var report_dict = data['report']
+							var str = "<tr><th>举报者</th><th>举报对象</th><th>举报原因</th><th>举报日期</th><th>操作</th></tr>";
+							var count = 0;
+							$.each(report_dict['data'], function(){
+								if(this.notes){
+									var notes = this.notes;
+								}else{
+									notes = "无内容";
+								}
+								count++;
+								str += "<tr><td>" + this.operator + "</td><td><a href='/reply/" + this.link +"' target='_blank'>No."  + this.object + "</a></td><td>" + notes + "</td><td>" + this.date + 
+								"</td><td><a href='/admin/report/?operator=" + this.operator + "&&object=" + this.object + "' target='_blank'>完成处理</a></td></tr>";					
+								});
+							for(i = count; i < page_size; ++i){
+								str += "<tr><td></td><td></td><td></td><td></td><td></td></tr>"; 
+							}
+							$("#report_table").html(str);
+							$("#report_total").html(report_dict['total']);
+							$('#pagination_report').html(get_report_page_html(report_dict['page'], report_dict['page_prev'], report_dict['page_last'], report_dict['has_next']));
+							bindPageReport();
+						},
+						error: function (e) {
+							page_report = page_report_copy;
+							alert(e['message']);;
+						},
+					});
+		});
+		$('#report_next').click(function (){
+					page_report += 1
+					$.ajax({
+						type: 'POST',
+						data: {
+							'page': page_report,
+							'page_size': page_size,
+							'type': 'report'
+						},
+						url: "{{url_for('admin_service')}}",
+						success: function (data) {
+							var report_dict = data['report']
+							var str = "<tr><th>举报者</th><th>举报对象</th><th>举报原因</th><th>举报日期</th><th>操作</th></tr>";
+							var count = 0;
+							$.each(report_dict['data'], function(){
+								if(this.notes){
+									var notes = this.notes;
+								}else{
+									notes = "无内容";
+								}
+								count++;
+								str += "<tr><td>" + this.operator + "</td><td><a href='/reply/" + this.link +"' target='_blank'>No."  + this.object + "</a></td><td>" + notes + "</td><td>" + this.date + 
+								"</td><td><a href='/admin/report/?operator=" + this.operator + "&&object=" + this.object + "' target='_blank'>完成处理</a></td></tr>";					
+								});
+							for(i = count; i < page_size; ++i){
+								str += "<tr><td></td><td></td><td></td><td></td><td></td></tr>"; 
+							}
+							$("#report_table").html(str);
+							$("#report_total").html(report_dict['total']);
+							$('#pagination_report').html(get_report_page_html(report_dict['page'], report_dict['page_prev'], report_dict['page_last'], report_dict['has_next']));
+							bindPageReport();
+						},
+						error: function (e) {
+							page_report -= 1;
+							alert(e['message']);;
+						},
+					});
+				});
+		$('#report_prev').click(function(){
+					page_report -= 1
+					$.ajax({
+						type: 'POST',
+						data: {
+						'page': page_report,
+						'page_size': page_size,
+						'type': 'report'
+						},
+						url: "{{url_for('admin_service')}}",
+						success: function (data) {
+							var report_dict = data['report']
+							var str = "<tr><th>举报者</th><th>举报对象</th><th>举报原因</th><th>举报日期</th><th>操作</th></tr>";
+							var count = 0;
+							$.each(report_dict['data'], function(){
+								if(this.notes){
+									var notes = this.notes;
+								}else{
+									notes = "无内容";
+								}
+								count++;
+								str += "<tr><td>" + this.operator + "</td><td><a href='/reply/" + this.link +"' target='_blank'>No."  + this.object + "</a></td><td>" + notes + "</td><td>" + this.date + 
+								"</td><td><a href='/admin/report/?operator=" + this.operator + "&&object=" + this.object + "' target='_blank'>完成处理</a></td></tr>";					
+								});
+							for(i = count; i < page_size; ++i){
+								str += "<tr><td></td><td></td><td></td><td></td><td></td></tr>"; 
+							}
+							$("#report_table").html(str);
+							$("#report_total").html(report_dict['total']);
+							$('#pagination_report').html(get_report_page_html(report_dict['page'], report_dict['page_prev'], report_dict['page_last'], report_dict['has_next']));
+							bindPageReport();
+						},
+						error: function (e) {
+							page_report += 1;
+							alert(e['message']);;
+						},
+					});
+			});
+	}
+	function get_logger_page_html(page, page_prev, page_last, has_next){
+		var str = "";
+		if(page > 1){
+			str += "<li class='uk-active'><a id='logger_prev'>上一页</a></li>";
+		} else {
+			str += "<li class='uk-disabled'><span>上一页</span></li>";
+		}
+		for(i = page_prev; i < page_last; i++){
+			if(i == page){ 
+				str += "<li class='uk-disabled'><span>" + i + " </span></li>";
+			}else{
+				str += "<li class='uk-active'><span class='page_logger' page=" + i +">" + i + " </span></li>";
+			}
+		}
+		if(has_next){
+			str += "<li class='uk-active'><a id='logger_next'>下一页</a></li>";
+		} else {
+			str += "<li class='uk-disabled'><span>下一页</span></li>";
+		}
+		return str;
+	}
+	$('#bt_report').click(function () {
+			$.ajax({
+				type: 'POST',
+				data: {
+					'page': 1,
+					'page_size': page_size,
+					'type': 'report'
+				},
+				url: "{{url_for('admin_service')}}",
+				success: function (data) {
+					page_report = 1
+					var report_dict = data['report']
+					var str = "<tr><th>举报者</th><th>举报对象</th><th>举报原因</th><th>举报日期</th><th>操作</th></tr>";
+					var count = 0;
+					$.each(report_dict['data'], function(){
+						if(this.notes){
+							var notes = this.notes;
+						}else{
+							notes = "无内容";
+						}
+						count++;
+						str += "<tr><td>" + this.operator + "</td><td><a href='/reply/" + this.link +"' target='_blank'>No."  + this.object + "</a></td><td>" + notes + "</td><td>" + this.date + 
+						"</td><td><a href='/admin/report/?operator=" + this.operator + "&&object=" + this.object + "' target='_blank'>完成处理</a></td></tr>";					
+						});
+					for(i = count; i < page_size; ++i){
+						str += "<tr><td></td><td></td><td></td><td></td><td></td></tr>"; 
+					}
+					$("#report_table").html(str)
+					$("#report_total").html(report_dict['total'])
+					$('#pagination_report').html(get_report_page_html(report_dict['page'], report_dict['page_prev'], report_dict['page_last'], report_dict['has_next']));
+					bindPageReport();
+				},
+				error: function (e) {
+					alert(e['message']);
+				},
+			});
+		});
+	bindPageLogger();
+	function bindPageLogger(){
+		$('.page_logger').click(function (){
+			console.log('click')
+			var page_logger_copy = page_logger
+			page_logger = parseInt($(this).attr("page"));
+					$.ajax({
+						type: 'POST',
+						data: {
+							'page': page_logger,
+							'page_size': page_size,
+							'type': 'admin'
+						},
+						url: "{{url_for('admin_service')}}",
+						success: function (data) {
+							var logger_dict = data['logger']
+							var str = "<tr><th>操作者</th><th>操作对象</th><th>操作类型</th><th>操作日期</th></tr>";
+							var count = 0;
+							$.each(logger_dict['data'], function(){
+								if(this.action == '清退用户' || this.action == '释放用户'){
+									var object = this.object;
+								}else{
+									var object = "No." + this.object;
+								}
+								count++;
+								str += "<tr><td>" + this.operator + "</td><td>" + object + "</td><td>" + this.action + "</td><td>" + this.date + "</td></tr>" 					
+							});
+							for(i = count; i < page_size; ++i){
+								str += "<tr><td>" + "</td><td>" + "</td><td>" + "</td><td>" + "</td></tr>"; 
+							}
+							$("#logger_table").html(str)
+							$("#logger_total").html(logger_dict['total'])
+							$('#pagination_logger').html(get_logger_page_html(logger_dict['page'], logger_dict['page_prev'], logger_dict['page_last'], logger_dict['has_next']));
+							bindPageLogger();
+						},
+						error: function (e) {
+							page_logger = page_logger_copy;
+							alert(e['message']);;
+						},
+					});
+				});
+		$('#logger_next').click(function (){
+					page_logger += 1
+					$.ajax({
+						type: 'POST',
+						data: {
+							'page': page_logger,
+							'page_size': page_size,
+							'type': 'admin'
+						},
+						url: "{{url_for('admin_service')}}",
+						success: function (data) {
+							var logger_dict = data['logger']
+							var str = "<tr><th>操作者</th><th>操作对象</th><th>操作类型</th><th>操作日期</th></tr>";
+							var count = 0;
+							$.each(logger_dict['data'], function(){
+								if(this.action == '清退用户' || this.action == '释放用户'){
+									var object = this.object;
+								}else{
+									var object = "No." + this.object;
+								}
+								count++;
+								str += "<tr><td>" + this.operator + "</td><td>" + object + "</td><td>" + this.action + "</td><td>" + this.date + "</td></tr>" 					
+							});
+							for(i = count; i < page_size; ++i){
+								str += "<tr><td>" + "</td><td>" + "</td><td>" + "</td><td>" + "</td></tr>"; 
+							}
+							$("#logger_table").html(str)
+							$("#logger_total").html(logger_dict['total'])
+							$('#pagination_logger').html(get_logger_page_html(logger_dict['page'], logger_dict['page_prev'], logger_dict['page_last'], logger_dict['has_next']));
+							bindPageLogger();
+						},
+						error: function (e) {
+							page_logger -= 1;
+							alert(e['message']);;
+						},
+					});
+				});
+		$('#logger_prev').click(function(){
+					page_logger -= 1
+					$.ajax({
+						type: 'POST',
+						data: {
+						'page': page_logger,
+						'page_size': page_size,
+						'type': 'admin'
+						},
+						url: "{{url_for('admin_service')}}",
+						success: function (data) {
+							var logger_dict = data['logger']
+							var str = "<tr><th>操作者</th><th>操作对象</th><th>操作类型</th><th>操作日期</th></tr>";
+							var count = 0;
+							$.each(logger_dict['data'], function(){
+								if(this.action == '清退用户' || this.action == '释放用户'){
+									var object = this.object;
+								}else{
+									var object = "No." + this.object;
+								}
+								count++;
+								str += "<tr><td>" + this.operator + "</td><td>" + object + "</td><td>" + this.action + "</td><td>" + this.date + "</td></tr>" 					
+							});
+							for(i = count; i < page_size; ++i){
+								str += "<tr><td>" + "</td><td>" + "</td><td>" + "</td><td>" + "</td></tr>"; 
+							}
+							$("#logger_table").html(str)
+							$("#logger_total").html(logger_dict['total'])
+							$('#pagination_logger').html(get_logger_page_html(logger_dict['page'], logger_dict['page_prev'], logger_dict['page_last'], logger_dict['has_next']));
+							bindPageLogger();
+						},
+						error: function (e) {
+							page_logger += 1;
+							alert(e['message']);
+						},
+					});
+			});
+	}
+        $('#bt_logger').click(function () {	
+			$.ajax({
+				type: 'POST',
+				data: {
+					'page': 1,
+					'page_size': page_size,
+					'type': 'admin'
+				},
+				url: "{{url_for('admin_service')}}",
+				success: function (data) {
+					page_logger = 1
+					var logger_dict = data['logger']
+					var str = "<tr><th>操作者</th><th>操作对象</th><th>操作类型</th><th>操作日期</th></tr>";
+					var count = 0;
+					$.each(logger_dict['data'], function(){
+						if(this.action == '清退用户' || this.action == '释放用户'){
+							var object = this.object;
+						}else{
+							var object = "No." + this.object;
+						}
+						count++;
+						str += "<tr><td>" + this.operator + "</td><td>" + object + "</td><td>" + this.action + "</td><td>" + this.date + "</td></tr>" 					
+					});
+					for(i = count; i < page_size; ++i){
+						str += "<tr><td>" + "</td><td>" + "</td><td>" + "</td><td>" + "</td></tr>"; 
+					}
+					$("#logger_table").html(str)
+					$("#logger_total").html(logger_dict['total'])
+					$('#pagination_logger').html(get_logger_page_html(logger_dict['page'], logger_dict['page_prev'], logger_dict['page_last'], logger_dict['has_next']));
+					bindPageLogger();
+				},
+				error: function (e) {
+					alert(e['message']);
+				},
+			});
+		});
+	});
+</script>
+<body>
+
+<div class="box">
+		<h1 style="text-align:center;"> 后台日志管理模块 </h1><a href='{{link}}'>返回匿名板</a>
+	<ul>
+	<li>
+		<input type="radio" name="check" id="active1" checked><label for="active1">举报信息</label>
+		<div>
+				<table border="1" class="gridtable" id='report_table'>
+					<tr><th>举报者</th><th>举报对象</th><th>举报原因</th><th>举报日期</th><th>操作</th></tr>
+					{% for r in report.data %}
+					<tr><td>{{ r.operator }}</td><td><a href="/reply/{{r.link}}" target="_blank">No.{{ r.object }}</a></td><td>{% if r.get('notes') %}{{ r.get('notes') }}{% else %}无内容{% endif %}</td><td>{{ r.date }}</td>
+					<td><a href="/admin/report/?operator={{r.operator}}&&object={{r.object}}" target="_blank">完成处理</a></td></tr>
+					{% endfor %}
+					{% if report.total < 10 %}
+					{% for i in range(page_size - report.total)%}
+					<tr><td></td><td></td><td></td><td></td><td></td></tr>
+					{% endfor %}
+					{% endif %}
+				</table>
+				共有<span id="report_total">{{report.total}}</span>条未处理的举报信息。<br>
+		<button id="bt_report" type="button">刷新</button> 
+				 	<ul class="uk-pagination uk-pagination-left h-pagination" style="display:block;" id="pagination_report">
+			{% if report.page > 1 %}
+				<li class="uk-active">
+					<a class="report_prev">上一页</a>
+				</li>
+			{%else%}
+				<li class="uk-disabled"><span>上一页</span></li>
+			{% endif %}
+			{% for i in range(report.page_prev, report.page_last)%}
+				{%if i == report.page%}
+					<li class="uk-disabled">
+						<span>{{i}} </span>
+					</li>
+				{%else%}
+				<li class="uk-active">
+					<span class="page_report" page={{i}}>{{i}}</span>
+				</li>
+				{%endif%}
+			{% endfor %}
+            {% if report.has_next %}
+				<li class="uk-active">
+					<a id='report_next'>下一页</a>
+				</li>
+			{%else%}
+				<li class="uk-disabled"><span>下一页</span></li>
+			{% endif %}
+	</ul>
+		 </div>
+    </li>
+    <li>
+		<input type="radio" name="check" id="active2" checked><label for="active2">操作日志</label>
+		<div>
+				<table border="1" class="gridtable" id="logger_table">
+					<tr><th>操作者</th><th>操作对象</th><th>操作类型</th><th>操作日期</th></tr>
+					{% for l in logger.data %}
+					<tr><td>{{ l.operator }}</td><td>{%if l.action == '清退用户' or l.action == '释放用户'%}{{ l.object }}{%else%}No.{{l.object}}{%endif%}</td><td>{{ l.action }}</td><td>{{ l.date }}</td></tr>
+					{% endfor%}
+					{% if logger.total < 10 %}
+					{% for i in range(page_size - logger.total)%}
+					<tr><td></td><td></td><td></td><td></td></tr>
+					{% endfor %}
+					{% endif %}
+				</table>
+				共有<span id="logger_total">{{logger.total}}</span>条操作日志信息。<br>
+		<button id="bt_logger" type="button">刷新</button>
+		<ul class="uk-pagination uk-pagination-left h-pagination" style="display:block;" id="pagination_logger">
+			{% if logger.page > 1 %}
+				<li class="uk-active">
+					<a id="logger_prev">上一页</a>
+				</li>
+			{%else%}
+				<li class="uk-disabled"><span>上一页</span></li>
+			{% endif %}
+			{% for i in range(logger.page_prev, logger.page_last)%}
+				{%if i == logger.page%}
+					<li class="uk-disabled">
+						<span>{{i}} </span>
+					</li>
+				{%else%}
+				<li class="uk-active">
+					<span class="page_logger" page={{i}}>{{i}}</span>
+				</li>
+				{%endif%}
+			{% endfor %}
+            {% if logger.has_next %}
+				<li class="uk-active">
+					<a id='logger_next'>下一页</a>
+				</li>
+			{%else%}
+				<li class="uk-disabled"><span>下一页</span></li>
+			{% endif %}
+	</ul>
+		</div>
+    </li>
+    </ul>
+    
+</div>
+</body>
+
+<style type="text/css">
+        /* 清样式，如果是项目中，不推荐使用通配符来清样式，建议使用标签清样式，通配符清样式会增加页面压力 */
+        *{
+            margin:0;
+            padding:0;
+        }
+        /* 宽度为屏宽的一半，高度为屏高的一半，然后居中 */
+        .box{
+            width:50vw;
+            height:50vh;
+            margin:0 auto;
+        }
+        /* 清除li样式 */
+        ul,li{
+            list-style: none;
+        }
+        /* 将ul相对定位，目的是让内容的div绝对定位时相对ul定位，否则会相对body定位 */
+        /* ul弹性盒，目的是让li横着排，也可以将li浮动或者转行内块 */
+        ul{
+            position:relative;
+            display:flex;
+        }
+        /* 将三个li宽度平分，高度60px */
+        li{
+            flex:1;
+            height:60px;
+        }
+        /* input隐藏 */
+        input{
+            display:none;
+        }
+        /* 设置input的下一个节点label的样式 */
+        input+label{
+            display:block;
+            width:100%;
+            height:100%;
+            background:#ccc;
+            font-size:18px;
+            text-align: center;
+            line-height: 60px;
+            color:#333;
+        }
+        /* 设置div内容的基础样式 隐藏内容div*/
+        input+label+div{
+            display:none;
+            position: absolute;
+            left:0;
+            top:60px;
+        }
+        /* input选中状态时候对应的label的样式 */
+        input:checked+label{
+            background: #333333;
+            color:#fff;
+        }
+        /* input选中时候显示对应的div */
+        input:checked+label+div{
+            display:block;
+        }
+        table.gridtable {
+			width:50vw;
+            margin:0 auto;
+			font-family: verdana,arial,sans-serif;
+			font-size:11px;color:#333333;
+			border-width: 1px;
+			border-color: #666666;
+			border-collapse: collapse;
+		}
+
+		table.gridtable th {
+			border-width: 1px;
+			padding: 8px;
+			border-style: solid;
+			border-color: #666666;
+			background-color: #dedede;
+		}
+
+		table.gridtable td {
+			border-width: 1px;
+			height: 18px;
+			padding: 8px;
+			border-style: solid
+			border-color: #666666;
+			background-color: #ffffff;
+		}
+.uk-pagination {
+    padding: 0;
+    list-style: none;
+    text-align: center;
+    font-size: 0
+}
+
+.uk-pagination:after,.uk-pagination:before {
+    content: " ";
+    display: table
+}
+
+.uk-pagination:after {
+    clear: both
+}
+
+.uk-pagination>li {
+    display: inline-block;
+    font-size: 1rem;
+    vertical-align: top
+}
+
+.uk-pagination>li:nth-child(n+2) {
+    margin-left: 5px
+}
+
+.uk-pagination>li>a,.uk-pagination>li>span {
+    display: inline-block;
+    min-width: 16px;
+    padding: 3px 5px;
+    line-height: 20px;
+    text-decoration: none;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    text-align: center;
+    border: 1px solid rgba(0,0,0,.06);
+    border-radius: 4px
+}
+
+.uk-pagination>li>a {
+    background: #f5f5f5;
+    color: #444;
+    text-shadow: 0 1px 0 #fff
+}
+
+.uk-pagination>li>a:focus,.uk-pagination>li>a:hover {
+    background-color: #fafafa;
+    color: #444;
+    outline: 0;
+    border-color: rgba(0,0,0,.16)
+}
+
+.uk-pagination>li>a:active {
+    background-color: #eee;
+    color: #444
+}
+
+.uk-pagination>.uk-active>span {
+    background: #f5f5f5;
+    color: #444;
+    text-shadow: 0 1px 0 #fff;
+}
+
+.uk-pagination>.uk-active>span:hover {
+    background-color: #fafafa;
+    color: #444;
+    outline: 0;
+    border-color: rgba(0,0,0,.16);
+}
+
+.uk-pagination>.uk-disabled>span {
+    background-color: #fafafa;
+    color: #999;
+    border: 1px solid rgba(0,0,0,.06);
+    text-shadow: 0 1px 0 #fff
+}
+
+
+.uk-pagination-previous {
+    float: left
+}
+
+.uk-pagination-next {
+    float: right
+}
+
+.uk-pagination-left {
+    text-align: left
+}
+
+.uk-pagination-right {
+    text-align: right
+}
+    </style>
+</html>

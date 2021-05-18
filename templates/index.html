@@ -1,0 +1,134 @@
+<!doctype html>
+<html class="uk-notouch">
+<title>MyChan匿名板</title>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <link rel="shortcut icon" href="{{url_for('static',filename='icon/icon.jpg')}}">
+     <!--Import css-->
+    <link type="text/css" rel="stylesheet" href="{{url_for('static',filename='css/uikit.min.css')}}"/>
+    <link type="text/css" rel="stylesheet" href="{{url_for('static',filename='css/uikit.almost-flat.min.css')}}"/>
+    <link type="text/css" rel="stylesheet" href="{{url_for('static',filename='css/h.desktop.css')}}"/>
+    </head>
+<body style>
+<script>
+        function close_flash_message(){
+            document.all.alertmessage.style.display='none';
+            return false;
+        }
+    </script>
+    <div id="h-menu">
+        <div id="h-menu-top">
+            <img id="h-menu-top-img" src="{{url_for('static',filename='img/icon.png')}}" title="欢迎光临！">
+            <a id="h-menu-top-sitename" href="/">MyChan<br>匿名板</a>
+        </div>
+        <div id="h-menu-search">
+                <form method="get" action="/search.html">
+                    <input id="h-menu-search-keyword" type="text" name="q" placeholder="搜索">
+                </form>
+            </div>
+        <ul id="h-menu-content" data-uk-nav="{multiple:true}" class="uk-nav uk-nav-parent-icon uk-nav-side">
+            <li class="h-nav-item">
+                    <a href="/time">
+                        时间线
+                    </a>
+                </li>
+            <li class="uk-parent uk-open">
+                    <li class="uk-nav-header h-nav-header">
+                        分区
+                    </li>
+                    <div style="overflow: hidden; height: 106px; position: relative;"><ul class="uk-nav-sub">
+                        {% for key in section_dict%}
+                        <li class="h-nav-item">
+                    <a href="/{{key}}">
+                        {{section_dict.get(key).get("name")}}
+                        {% if section_dict.get(key).get("notes")%}
+                        <font color="red">{{section_dict.get(key).get("notes")}}</font>
+                        {% endif %}
+                    </a>
+                </li>
+                        {%endfor%}
+                    </ul></div>
+                </li>
+<li class="uk-parent uk-open">
+                    <li class="h-nav-header" style="padding: 5px 15px;">
+                        用户系统
+                    </li>
+
+                    <li class="h-nav-item">
+                        {% if request.cookies.get('uid') %}
+                        <a href="/logout/?link=index">
+                        登出
+                    </a>
+                        {%else%}
+                        <a href="/login/?link=index">
+                        登录
+                    </a>
+                        {%endif%}
+                    </li>
+            {% if request.cookies.get('serial') %}
+            <li class="h-nav-item" style="padding: 5px 15px;color: gray;">
+                {{request.cookies.get('serial')}}
+            </li>
+            {%else%}
+                <li class="h-nav-item">
+                        <a href="/register/?link=index">
+                        注册
+                        </a>
+                </li>
+            {%endif%}
+                </li>
+            <li class="uk-parent uk-open">
+                    <li class="uk-nav-header h-nav-header">
+                        管理系统
+                    </li>
+
+                    <li class="h-nav-item">
+                        {% if session.get("pet") %}
+                        <a href="/admin/logout/?link=index">
+                        登出
+                    </a>
+                        {%else%}
+                        <a href="/admin/?link=index">
+                        权限狗入口
+                    </a>
+                        {%endif%}
+                    </li>
+            {% if session.get("pet") %}
+            <li class="h-nav-item" style="padding: 5px 15px;color: gray;">
+                {{session.get("pet")}}
+            </li>
+            <li class="h-nav-item">
+                <a href="/admin/service/?link=index">
+                        后台日志管理模块
+                </a>
+            </li>
+            {%endif%}
+                </li>
+            </ul>
+    </div>
+{% for message in get_flashed_messages() %}
+ <div id="alertmessage" class="alert alert-warning">
+ <button type="button" class="close" onclick="close_flash_message();" data-dismiss="alert">×</button>
+     <span>{{ message }}</span>
+ </div>
+ {% endfor %}
+     <div id="h-content">
+         <div class="h-threads-item-main">
+         <div class="uk-container uk-container-center">
+  <div style="text-align:center;color:#CC0000;margin:10px auto 0px;"><h2>
+    <span ><font color="#CC0000">“人，是会思考的芦苇。”</font>——帕斯卡，《思想录》</span>
+  </h2></div>
+             <div style="h-threads-img-box">
+                 <img src="{{url_for('static',filename='img/reed.jpg')}}" align="left" border="0" hspace="20" class="h-threads-img">
+             </div>
+             <div class="h-threads-content">
+                《人是会思考的芦苇》----帕斯卡<br><br>思想形成人的伟大。<br><br>人只不过是一根芦苇，是自然界最脆弱的东西；但他是一根能思想的芦苇。用不着整个宇宙都拿起武器来才能毁灭；一口气、一滴水就足以致他死命了。然而，纵使宇宙毁灭了他，人却仍然要比致他于死命的东西更高贵得多；因为他知道自己要死亡，以及宇宙对他所具有的优势，而宇宙对此却是一无所知。<br><br>因而，我们全部的尊严就在于思想。正是由于它而不是由于我们所无法填充的空间和时间我们才必须提高自己。因此，我们要努力好好地思想；这就是道德的原则。<br><br>能思想的芦苇——我应该追求自己的尊严，绝不是求之于空间，而是求之于自己的思想的规定。我占有多少土地都不会有用；由于空间，宇宙便囊括了我并吞没了我，有如一个质点；由于思想，我却囊括了宇宙。人既不是天使，又不是禽兽；但不幸就在于想表现为天使的人却表现为禽兽。<br>             </div>
+         </div></div>
+         <hr class="uk-article-divider">
+         <div style="text-align:center;color:#CC0000;margin:10px auto 0px;">
+             让我们自觉用友好和克制来传播友谊的魔法吧!<br>
+             <a href="https://github.com/VilTea/" target="_blank">我的GITHUB主页</a>
+		 	</div>
+      </div>
+</body>
+</html>

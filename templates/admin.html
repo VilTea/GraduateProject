@@ -1,0 +1,31 @@
+<!doctype html>
+<title>匿名板</title>
+ <script>
+        function close_flash_message(){
+            document.all.alertmessage.style.display='none';
+            return false;
+        }
+    </script>
+  {% block content %}
+ <div class="container">
+ {% for message in get_flashed_messages() %}
+ <div id="alertmessage" class="alert alert-warning" style="position: fixed;">
+ <button type="button" class="close" onclick="close_flash_message();" data-dismiss="alert">×</button>
+ {{ message }}
+ </div>
+ {% endfor %}
+ {% endblock %}
+ </div>
+<h1>{{board_desc}}</h1>
+<body>
+<br><br>
+  <ul>
+  <form action="/admin/login" method = "POST" >
+    <p>name: <input type="text" name="admin" placeholder="用户名"></p>
+    <p>password: <input type="password" name="password" placeholder="密码"></p>
+    <p hidden><input name="link" value="{{request.args.get('link')}}"></p>
+    <p hidden><input name="args" value="{{request.args.get('args')}}"></p>
+    <p><input type="submit" value="登录"></p>
+    </form><a href="{{link}}">返回匿名板</a>
+  </ul>
+</body>

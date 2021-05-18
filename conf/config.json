@@ -1,0 +1,23 @@
+{
+	"DATABASE": {
+		"host": "localhost",
+		"port": 27017,
+		"dbname": "mychandb",
+		"collection":{
+			"admin": "admin",
+			"user": "user",
+			"section": "section",
+			"stage": "stage",
+			"log": "log"
+		}
+	},
+	"CACHEBASE": {
+		"host": "localhost",
+		"port": "6379",
+		"maxsize_NQ": 15,
+		"expire_THC": 300,
+		"ask_time_THC": 50,
+		"max_ask_THC": 5
+	},
+	"DEBUG": true
+}

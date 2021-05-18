@@ -1,0 +1,119 @@
+<!doctype html>
+<title>No.{{stage.code}} - {{board_desc}} - MyChan匿名揭示板</title>
+<head>
+  <!--Import Google Icon Font-->
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+      <!--Import materialize.css-->
+      <link type="text/css" rel="stylesheet" href="{{url_for('static',filename='materialize/css/materialize.min.css')}}"  media="screen,projection"/>
+</head>
+<body>
+  <!--Import jQuery before materialize.js-->
+      <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+      <script type="text/javascript" src="{{url_for('static',filename='materialize/js/materialize.min.js')}}"></script>
+
+ <script>
+        function close_flash_message(){
+            document.all.alertmessage.style.display='none';
+            return false;
+        }
+    </script>
+  {% block content %}
+ <div class="container">
+ {% for message in get_flashed_messages() %}
+ <div id="alertmessage" class="alert alert-warning">
+ <button type="button" class="close" onclick="close_flash_message();" data-dismiss="alert">×</button>
+ {{ message }}
+ </div>
+ {% endfor %}
+ {% endblock %}
+<h1>{{board_desc}}</h1>
+  <form method = "POST" action="/{{board}}/post_reply/{{stage.code}}" enctype=multipart/form-data>
+    Name: {% if request.cookies.get('uid') %}
+           {{request.cookies.get('uid')}}
+           {% else %}
+            {% if session.get('pet') %}
+            {{session.get('pet')}}
+            {% else %}
+           <a href="/login">login</a>
+            {% endif %}
+           {% endif %}<br/>
+    <!--Image: <input type=file name="image"/><br/>-->
+    Title:<input type="text" name="title" placeholder="标题"><br>
+		
+    Post: <textarea type="text" name="content" placeholder="发表的内容"></textarea><br/>
+    <input type="submit" value="发表"/>
+    </form>
+  <ul>
+  <div>
+      <font color="green">
+    {% if stage.title %}
+      <b>{{stage.title}}</b>
+      {%else%}
+      <b> 无标题</b>
+    {% endif %}</font>
+          <i>No. {{stage.code}}</i>
+      {% if stage.is_sage %} <font color="red">sage</font>{%endif%}
+      {% if stage.is_del %} <font color="blue">delete</font>{%endif%}<br>
+    <font color="brown">{{stage.date}}</font><b> ID: {%if stage.is_admin %}
+      <font color="red">{{stage.author}}</font>
+      {% else %}
+	{{stage.author}}
+      {% endif %}</b><i>(Po)</i><br>
+      　　{%if stage.is_admin %}
+      <font color="red">{{stage.content}}</font>
+      {% else %}
+	{{stage.content}}
+      {% endif %}
+      {% if session.get("pet") %}
+      <br>
+      {% if stage.is_sage %}
+      <a href="/admin/{{board}}/de_sage/{{stage.code}}">de_sage</a>
+      {% else %}
+      <a href="/admin/{{board}}/sage/{{stage.code}}">Sage</a>
+      {% endif %}
+      {% if stage.is_del %}
+      <a href="/admin/{{board}}/restore/{{stage.code}}">restore</a>
+      {% else %}
+      <a href="/admin/{{board}}/delete/{{stage.code}}">Delete</a>
+      {% endif %}
+      {% endif %}
+  </div>
+<hr>
+  {% for reply in replies %}
+  <div>
+    {% if not reply.isdel %}
+      <font color="green">
+      {% if reply.title %}
+      <b>{{reply.title}}</b>
+      {%else%}
+      <b> 无标题</b>
+    {% endif %}</font>
+      <i>No. {{reply.code}}</i>
+      {% if reply.is_del %} <font color="blue">delete</font>{%endif%}
+      <br>
+      <font color="brown">{{reply.date}}</font><b> ID: {%if reply.is_admin %}
+      <font color="red">{{reply.author}}</font>
+      {% else %}
+	{{reply.author}}
+      {% endif %}</b><i>{%if reply.author == stage.author%}(Po){%endif%}</i><br>
+      　　{%if reply.is_admin %}
+      <font color="red">{{reply.content}}</font>
+      {% else %}
+	{{reply.content}}
+      {% endif %}
+      {% if session.get("pet") %}
+      <br>
+      {% if reply.is_del %}
+      <a href="/admin/{{board}}/restore/{{reply.code}}/{{stage.code}}">Restore</a>
+      {% else %}
+      <a href="/admin/{{board}}/delete/{{reply.code}}/{{stage.code}}">Delete</a>
+      {% endif %}
+      {% endif %}
+    {% endif %}
+    <hr/>
+  </div>
+  {% endfor %}
+  
+  </ul>
+
+</body>

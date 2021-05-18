@@ -1,0 +1,408 @@
+<!doctype html>
+<html class="uk-notouch">
+<title>No.{{stage.code}} - {{section_dict.get(stage.section_code).get("name")}} - MyChan匿名板</title>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <link rel="shortcut icon" href="{{url_for('static',filename='icon/icon.jpg')}}">
+     <!--Import css-->
+    <link type="text/css" rel="stylesheet" href="{{url_for('static',filename='css/uikit.min.css')}}"/>
+    <link type="text/css" rel="stylesheet" href="{{url_for('static',filename='css/uikit.almost-flat.min.css')}}"/>
+    <link type="text/css" rel="stylesheet" href="{{url_for('static',filename='css/h.desktop.css')}}"/>
+    </head>
+<body style>
+    <script>
+		function showForm_notes(divName){
+			var value = document.getElementById(divName).style.display;
+			if(value == 'none'){
+				document.getElementById(divName).style.display="block";
+			} else {
+				document.getElementById(divName).style.display="none";
+			}
+		}
+        function close_flash_message(){
+            document.all.alertmessage.style.display='none';
+            return false;
+        }
+    </script>
+    <div id="h-menu">
+        <div id="h-menu-top">
+            <img id="h-menu-top-img" src="{{url_for('static',filename='img/icon.png')}}" title="欢迎光临！">
+            <a id="h-menu-top-sitename" href="/">MyChan<br>匿名板</a>
+        </div>
+        <div id="h-menu-search">
+                <form method="get" action="/search.html">
+                    <input id="h-menu-search-keyword" type="text" name="q" placeholder="搜索">
+                </form>
+            </div>
+        <ul id="h-menu-content" data-uk-nav="{multiple:true}" class="uk-nav uk-nav-parent-icon uk-nav-side">
+            <li class="h-nav-item">
+                    <a href="/time">
+                        时间线
+                    </a>
+                </li>
+            <li class="uk-parent uk-open">
+                    <li class="uk-nav-header h-nav-header">
+                        分区
+                    </li>
+                    <div style="overflow: hidden; height: 106px; position: relative;"><ul class="uk-nav-sub">
+                        {% for key in section_dict%}
+                        <li class="h-nav-item">
+                    <a href="/{{key}}">
+                        {{section_dict.get(key).get("name")}}
+                        {% if section_dict.get(key).get("notes")%}
+                        <font color="red">{{section_dict.get(key).get("notes")}}</font>
+                        {% endif %}
+                    </a>
+                </li>
+                        {%endfor%}
+                    </ul></div>
+                </li>
+            <li class="uk-parent uk-open">
+                    <li class="h-nav-header" style="padding: 5px 15px;">
+                        用户系统
+                    </li>
+
+                    <li class="h-nav-item">
+                        {% if request.cookies.get('uid') %}
+                        <a href="/logout/?link=reply&&args={'stage':'{{stage.code}}','page':{{request.args.get('page', 1)}}}">
+                        登出
+                    </a>
+                        {%else%}
+                        <a href="/login/?link=reply&&args={'stage':'{{stage.code}}','page':{{request.args.get('page', 1)}}}">
+                        登录
+                    </a>
+                        {%endif%}
+                    </li>
+            {% if request.cookies.get('serial') %}
+            <li class="h-nav-item" style="padding: 5px 15px;color: gray;">
+                {{request.cookies.get('serial')}}
+            </li>
+            {%else%}
+                <li class="h-nav-item">
+                        <a href="/register/?link=reply&&args={'stage':'{{stage.code}}','page':{{request.args.get('page', 1)}}}">
+                        注册
+                        </a>
+                </li>
+            {%endif%}
+                </li>
+            <li class="uk-parent uk-open">
+                    <li class="uk-nav-header h-nav-header">
+                        管理系统
+                    </li>
+
+                    <li class="h-nav-item">
+                        {% if session.get("pet") %}
+                        <a href="/admin/logout/?link=reply&&args={'stage':'{{stage.code}}','page':{{request.args.get('page', 1)}}}">
+                        登出
+                    </a>
+                        {%else%}
+                        <a href="/admin/?link=reply&&args={'stage':'{{stage.code}}','page':{{request.args.get('page', 1)}}}">
+                        权限狗入口
+                    </a>
+                        {%endif%}
+                    </li>
+            {% if session.get("pet") %}
+            <li class="h-nav-item" style="padding: 5px 15px;color: gray;">
+                {{session.get("pet")}}
+            </li>
+            <li class="h-nav-item">
+                <a href="/admin/service/?link=reply&&args={'stage': '{{stage.code}}','page':{{request.args.get('page', 1)}}}">
+                        后台日志管理模块
+                </a>
+            </li>
+            {%endif%}
+                </li>
+            </ul>
+    </div>
+        {% for message in get_flashed_messages() %}
+ <div id="alertmessage" class="alert alert-warning">
+ <button type="button" class="close" onclick="close_flash_message();" data-dismiss="alert">×</button>
+ {{ message }}
+ </div>
+ {% endfor %}
+     <div id="h-content">
+<div class="uk-container">
+  <h2 class="h-title">No.{{stage.code}} - {{section_dict.get(stage.section_code).get("name")}}</h2>
+     {% if history == 1%}
+     {% else %}
+     <div id="h-post-form" class="uk-container-center uk-width-small-8-10 uk-width-medium-4-10 uk-width-large-4-15">
+  <form method="POST" action="/post_reply/{{stage.code}}" enctype=multipart/form-data>
+    <div class="uk-grid uk-grid-small h-post-form-grid"><div class="uk-width-1-5">
+          <div class="h-post-form-title">ID</div></div>
+      <div class="h-post-form-input uk-width-3-5">{% if request.cookies.get('uid') %}
+           {{request.cookies.get('uid')}}
+           {% else %}
+            {% if session.get('pet') %}
+            {{session.get('pet')}}
+            {% else %}
+           <a href="/login/?link=reply&&args={'stage':'{{stage.code}}','page':{{request.args.get('page', 1)}}}">login</a>
+            {% endif %}
+          {% endif %}</div></div>
+    <!--Image: <input type=file name="image"/><br/>-->
+      <div class="uk-grid uk-grid-small h-post-form-grid">
+      <div class="uk-width-1-5">
+          <div class="h-post-form-title">标题</div>
+      </div>
+      <div class="h-post-form-input uk-width-3-5">
+      <input type="text" name="title" placeholder="无标题" size="28" value maxlength="100"></div><div class="h-post-form-option uk-width-1-5">
+    <input type="submit" value="发表"/></div>
+      </div>
+          <div class="uk-grid uk-grid-small h-post-form-grid">
+    <div class="uk-width-1-5">
+          <div class="h-post-form-title">正文</div>
+      </div><div class="h-post-form-input uk-width-4-5"><textarea type="text" name="content" placeholder="正文不能为空" maxlength="10000" class="h-post-form-textarea"></textarea>
+          </div></div>
+
+    </form>
+     </div>
+  <ul>
+  <hr/>
+      {% endif %}
+  <div class="h-threads-item uk-clearfix">
+      <div class="h-threads-item-main">
+          <div class="h-threads-info">
+      {% if history == 0 or not stage.prefix%}
+              <span class="h-threads-info-reply-btn">
+    [<a href="/reply/{{stage.code}}">回应</a>]
+              </span>
+          {% endif %}<span class="h-threads-info-email">{% if stage.title %}
+          {{stage.title}}
+          {%else%}
+          无标题
+          {%endif%}</span>
+              <i>No. {{stage.code}}</i>[{%if history == 0%}<span style="color:gray">{{section_dict.get(stage.section_code).get("name")}}</span>{%else%}<a href="/{{stage.section_code}}/">{{section_dict.get(stage.section_code).get("name")}}</a>{%endif%}]
+      {% if stage.is_sage %} <font color="red">sage</font>{%else%}
+              {%endif%}{% if stage.is_del %} <font color="blue">delete</font>{%endif%}
+      <span class="h-threads-info-report-btn">
+      {% if session.get("pet") %}
+			[<a href="javascript:showForm_notes('h-form-post-notes_{{stage.code}}')">备注</a>]</span>
+      {%else%}
+      {% if request.cookies.get("serial") or session.get('pet')%}
+            [<a href="javascript:showForm_notes('h-form-post-notes_{{stage.code}}')">举报</a>]</span>
+      {% else %}
+            [<span style="margin: 0 2px">举报</span>]
+      {%endif%}
+      {%endif%}</span>
+              {% if session.get("pet") %}
+      {% if history == 0 or not stage.prefix%}
+      {% if stage.is_sage %}
+              <span class="h-threads-info-report-btn">
+      [<a href="/admin/{{stage.section_code}}/de_sage/{{stage.code}}/{{stage.code}}/?page={{request.args.get('page', 1)}}">取消sage</a>]
+              </span>
+      {% else %}
+              <span class="h-threads-info-report-btn">
+      [<a href="/admin/{{stage.section_code}}/sage/{{stage.code}}/{{stage.code}}/?page={{request.args.get('page', 1)}}">Sage</a>]
+              </span>
+      {% endif %}
+      {% endif %}
+      {% if stage.is_del %}
+              <span class="h-threads-info-report-btn">
+      [<a href="/admin/{{stage.section_code}}/restore/{{stage.code}}/{{stage.code}}/?type=stage&&section={{stage.section_code}}/?page={{request.args.get('page', 1)}}">Restore</a>]
+              </span>
+      {% else %}
+              <span class="h-threads-info-report-btn">
+      [<a href="/admin/{{stage.section_code}}/delete/{{stage.code}}/{{stage.code}}/?type=stage&&section={{stage.section_code}}/?page={{request.args.get('page', 1)}}">Delete</a>]
+              </span>
+      {% endif %}
+      {% endif %}
+	<br>
+      <span class="h-threads-info-createdat">{{stage.date}}</span>
+    <b>ID:
+      {%if stage.is_admin %}
+        <font color="red">{{stage.author}}</font></b><i>(Po)</i>
+        {% if session.get("pet") %}
+            {% if history == 0%}
+              <span class="h-threads-info-report-btn">
+                  [<a href="/admin_user_operator/{{stage.section_code}}/{{stage.code}}/A/search/{{stage.author}}/?page={{request.args.get('page', 1)}}">查看发言记录</a>]
+              </span>
+            {% endif %}
+        {% endif %}
+      {% else %}
+        {{stage.author}}</b><i>(Po)</i>
+        {% if session.get("pet") %}
+            {% if history == 0 %}
+              <span class="h-threads-info-report-btn">
+      [<a href="/admin_user_operator/{{stage.section_code}}/{{stage.code}}/R/search/{{stage.author}}/?page={{request.args.get('page', 1)}}">查看发言记录</a>]
+              </span>
+              <span class="h-threads-info-report-btn">
+      [<a href="/admin_user_operator/{{stage.section_code}}/{{stage.code}}/R/delete/{{stage.author}}/?page={{request.args.get('page', 1)}}">清退</a>]
+              </span>
+              <span class="h-threads-info-report-btn">
+      [<a href="/admin_user_operator/{{stage.section_code}}/{{stage.code}}/R/restore/{{stage.author}}/?page={{request.args.get('page', 1)}}">恢复</a>]
+              </span>
+            {% else %}
+                {% if not stage.prefix%}
+              <span class="h-threads-info-report-btn">
+      [<a href="/admin_user_operator/{{stage.section_code}}/{{stage.code}}/R/delete/{{stage.author}}/?page={{request.args.get('page', 1)}}">清退</a>]
+              </span>
+              <span class="h-threads-info-report-btn">
+      [<a href="/admin_user_operator/{{stage.section_code}}/{{stage.code}}/R/restore/{{stage.author}}/?page={{request.args.get('page', 1)}}">恢复</a>]
+              </span>
+                {% else %}
+              <span class="h-threads-info-report-btn">
+      [<a href="/admin_user_operator/{{stage.section_code}}/{{stage.prefix}}/R/delete/{{stage.author}}/?page={{request.args.get('page', 1)}}">清退</a>]
+              </span>
+              <span class="h-threads-info-report-btn">
+      [<a href="/admin_user_operator/{{stage.section_code}}/{{stage.prefix}}/R/restore/{{stage.author}}/?page={{request.args.get('page', 1)}}">恢复</a>]
+              </span>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+              {% endif %}</div>
+      <div class="h-threads-content">
+      {%if stage.is_admin %}
+      <font color="red">{{stage.content}}</font>
+      {% else %}
+	{{stage.content}}
+      {% endif %}
+      {%if stage.notes %}
+      <br><font color="red">=====================<br>{{stage.notes}}</font>
+      {% endif %}
+      </div>
+       {% if session.get("pet") or request.cookies.get("serial")%}
+		<div id="h-form-post-notes_{{stage.code}}" class="uk-container uk-width-small-8-10 uk-width-medium-4-10 uk-width-large-4-15" style="display:none;" enctype="multipart/form-data">
+              {% if session.get("pet") %}<form method="post" action="/reply/{{stage.code}}/notes/{{stage.code}}/?page={{request.args.get('page', 1)}}"> 
+              {% else %}<form method="post" action="/reply/{{stage.code}}/notes/{{stage.code}}/?page={{request.args.get('page', 1)}}">{% endif %}
+              <div class="uk-grid uk-grid-small h-post-form-grid">
+				<div class="h-post-form-title" style="height: 100%;background: #ea8;font-weight: bold;text-align: left;padding-left: 4px;">
+              {% if session.get("pet") %}备注信息:{%else%}举报原因:{%endif%}</div>
+					<div class="h-post-form-input uk-width-4-5"> 
+					{% if session.get("pet") %}<p hidden><input name="notes_prev" value="{{stage.notes}}"></p>{% endif %}
+						<textarea type="text" name="notes" maxlength="10000" placeholder="无内容" style="width: 100%;height: 80px;padding: 0;">{% if session.get("pet") %}{{stage.notes}}{% endif %}</textarea>
+						<input type="submit" value="提交">
+					</div>
+				</div>
+				</form>
+           </div>
+        {% endif %}
+          {%if page_dict.total > 0%}
+          <div class="h-threads-tips">
+              <span class="warn_txt2">共有 {{page_dict.total}} 篇回应。</span>
+          </div>
+          {%endif%}
+          <div class="h-threads-item-replys">
+          {% for reply in replies %}
+              <div class="h-threads-item-reply">
+                  <div class="h-threads-item-reply-icon">…</div>
+                  <div class="h-threads-item-reply-main">
+                      <div class="h-threads-info">
+                          <span class="h-threads-info-email">{% if reply.title %}
+          {{reply.title}}
+          {%else%}
+          无标题
+          {%endif%}</span>
+              <i>No. {{reply.code}}</i>[<span style="color:gray">{{section_dict.get(stage.section_code).get("name")}}</span>]
+              {% if reply.is_del %} <font color="blue">delete</font>{%endif%}
+      <span class="h-threads-info-report-btn">
+      {% if session.get("pet") %}
+      [<a href="javascript:showForm_notes('h-form-post-notes_{{reply.code}}')">备注</a>]</span>
+      {%else%} 
+      {% if request.cookies.get("serial") %}
+                  [<a href="javascript:showForm_notes('h-form-post-notes_{{reply.code}}')">举报</a>]</span>
+              {% else %}
+                  [<span style="margin: 0 2px">举报</span>]
+      {%endif%}
+      {%endif%}</span>
+              {% if session.get("pet") %}
+      {% if reply.is_del %}
+              <span class="h-threads-info-report-btn">
+      [<a href="/admin/{{stage.section_code}}/restore/{{reply.code}}/{{stage.code}}/?type='reply'&&page={{request.args.get('page', 1)}}">Restore</a>]
+              </span>
+      {% else %}
+              <span class="h-threads-info-report-btn">
+      [<a href="/admin/{{stage.section_code}}/delete/{{reply.code}}/{{stage.code}}/?type='reply'&&page={{request.args.get('page', 1)}}">Delete</a>]
+              </span>
+      {% endif %}
+      {% endif %}
+	<br>
+      <span class="h-threads-info-createdat">{{reply.date}}</span>
+    <b>ID:
+      {%if reply.is_admin %}
+        <font color="red">{{reply.author}}</font></b>{%if reply.author == stage.author%}<i>(Po)</i>{%endif%}
+        {% if session.get("pet") %}
+              <span class="h-threads-info-report-btn">
+                  [<a href="/admin_user_operator/{{reply.section_code}}/{{reply.prefix}}/A/search/{{reply.author}}/?page={{request.args.get('page', 1)}}">查看发言记录</a>]
+              </span>
+        {% endif %}
+      {% else %}
+        {{reply.author}}</b>{%if reply.author == stage.author%}<i>(Po)</i>{%endif%}
+        {% if session.get("pet") %}
+              <span class="h-threads-info-report-btn">
+      [<a href="/admin_user_operator/{{reply.section_code}}/{{reply.prefix}}/R/search/{{reply.author}}/?page={{request.args.get('page', 1)}}">查看发言记录</a>]
+              </span>
+              <span class="h-threads-info-report-btn">
+      [<a href="/admin_user_operator/{{reply.section_code}}/{{reply.prefix}}/R/delete/{{reply.author}}/?page={{request.args.get('page', 1)}}">清退</a>]
+              </span>
+              <span class="h-threads-info-report-btn">
+      [<a href="/admin_user_operator/{{reply.section_code}}/{{reply.prefix}}/R/restore/{{reply.author}}/?page={{request.args.get('page', 1)}}">恢复</a>]
+              </span>
+            {% endif %}
+              {% endif %}</div>
+                      <br>
+      <div class="h-threads-content">
+      {%if reply.is_admin %}
+      <font color="red">{{reply.content}}</font>
+      {% else %}
+	{{reply.content}}
+      {% endif %}
+      {%if reply.notes %}
+      <br><font color="red">=====================<br>{{reply.notes}}</font>
+      {% endif %}
+                      </div>
+                     {% if session.get("pet") or request.cookies.get("serial")%}
+		<div id="h-form-post-notes_{{reply.code}}" class="uk-container uk-width-small-8-10 uk-width-medium-4-10 uk-width-large-4-15" style="display:none;" enctype="multipart/form-data">
+              {% if session.get("pet") %}<form method="post" action="/reply/{{stage.code}}/notes/{{reply.code}}/?page={{request.args.get('page', 1)}}"> 
+              {% else %}<form method="post" action="/reply/{{stage.code}}/report/{{reply.code}}/?page={{request.args.get('page', 1)}}">{% endif %}
+              <div class="uk-grid uk-grid-small h-post-form-grid">
+				<div class="h-post-form-title" style="height: 100%;background: #ea8;font-weight: bold;text-align: left;padding-left: 4px;">
+              {% if session.get("pet") %}备注信息:{%else%}举报原因:{%endif%}</div>
+					<div class="h-post-form-input uk-width-4-5"> 
+						{% if session.get("pet") %}<p hidden><input name="notes_prev" value="{{reply.notes}}"></p>{% endif %}
+						<textarea type="text" name="notes" maxlength="10000" placeholder="无内容" style="padding: 0;">{% if session.get("pet") %}{{reply.notes}}{% endif %}</textarea>
+						<input type="submit" value="提交">
+					</div>
+				</div>
+				</form>
+           </div>
+        {% endif %}
+                  </div>
+              </div>
+          {%endfor%}
+          </div>
+      </div>
+  </div>
+
+  </ul><ul class="uk-pagination uk-pagination-left h-pagination">
+     {% if page_dict.page_num > 0%}
+     {% if page_dict.has_prev %}
+             <li>
+                 <a href="/reply/{{stage.code}}/?page={{page_dict.page - 1}}">上一页</a></li>
+             {%else%}
+             <li class="uk-disabled"><span href="/reply/{{stage.code}}/?page={{page_dict.page - 1}}">上一页</span></li>
+    {% endif %}
+    {% for i in range(page_dict.page_prev, page_dict.page_last)%}
+
+        {%if i == page_dict.page%}
+             <li class="uk-active">
+        <span href="/reply/{{stage.code}}/?page={{i}}">{{i}} </span>
+             </li>
+        {%else%}
+             <li>
+        <a href="/reply/{{stage.code}}/?page={{i}}">{{i}}</a>
+             </li>
+        {%endif%}
+    {% endfor %}
+
+             {% if page_dict.has_next %}
+             <li>
+                 <a href="/reply/{{stage.code}}/?page={{page_dict.page + 1}}">下一页</a></li>
+             {%else%}
+             <li class="uk-disabled"><span href="/reply/{{stage.code}}/?page={{page_dict.page + 1}}">下一页</span></li>
+    {% endif %}
+     {% endif %}
+         </ul></div>
+
+
+ </div>
+</body>
+</html>

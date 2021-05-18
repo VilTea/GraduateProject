@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="../static/js/jquery-3.6.0.js"></script>
+    <title>匿名板</title>
+</head>
+<body>
+    <div style="font-size: medium">
+        <label>请输入下面图片中的验证码：</label><br>
+        <img src="" id="captcha-img" class="captcha-img" alt="">
+        <a href="javascript:void(0)" onclick="Change()">看不清楚，换一张</a><br>
+        <input id="your_in" placeholder="Input your answer">
+        <button onclick="Check()">确认</button>
+    </div>
+    <script>
+        function Change() {
+            $.ajax({
+                url: '{{ url_for('get_captcha') }}',
+                async: true,
+                type: "GET",
+                success: function (data) {
+                    document.getElementById("captcha-img").src = data;
+                }
+            })
+        }
+    </script>
+    <script>
+        function Check() {
+            var code = sessionStorage.getItem("captcha");
+            var your_in = document.getElementById("your_in").value;
+            if(your_in.toLowerCase() == code){
+                alert("验证成功！");
+            }
+            else {
+                alert("验证错误！")
+            }
+        }
+        window.onload = Change();
+    </script>
+</body>
+</html>
