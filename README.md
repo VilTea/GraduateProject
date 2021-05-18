@@ -9,7 +9,7 @@
 
 ![index](https://raw.githubusercontent.com/VilTea/GraduateProject/raw/master/Image/index.png)
 
-基于python3.8开发，简单的匿名板，基于redis实现了简单的缓存机制。
+python3.8, Flask框架开发，简单的匿名板，基于redis实现了简单的缓存机制。
 
 ![board](https://raw.githubusercontent.com/VilTea/GraduateProject/raw/master/Image/board.png)
 
