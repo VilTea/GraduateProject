@@ -1,5 +1,3 @@
-[TOC]
-
 下述文件来源于A岛匿名版(adnmb3.com)，个别文件稍作修改:
 
 - static/css/h.desktop.css
@@ -9,11 +7,11 @@
 
 # MyChan匿名板
 
-![index](https://github.com/VilTea/GraduateProject/raw/master/Image/index.png)
+![index](https://raw.githubusercontent.com/VilTea/GraduateProject/raw/master/Image/index.png)
 
 基于python3.8开发，简单的匿名板，基于redis实现了简单的缓存机制。
 
-![board](https://github.com/VilTea/GraduateProject/raw/master/Image/board.png)
+![board](https://raw.githubusercontent.com/VilTea/GraduateProject/raw/master/Image/board.png)
 
 ## 开发环境
 
